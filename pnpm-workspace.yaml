@@ -18,4 +18,5 @@ peerDependencyRules:
     - vue
 
 onlyBuiltDependencies:
+  - '@parcel/watcher'
   - esbuild
