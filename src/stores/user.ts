@@ -1,13 +1,20 @@
-import { ref, type Ref } from "vue";
 import { defineStore } from "pinia";
 import { useAxios, useCookies } from "@vueuse/integrations";
 import z from "zod/v3";
+import { reactive, ref } from "vue";
 
 const cookie = useCookies(["access_token"]);
 
 interface User {
   id: string;
   login: string;
+}
+
+function anonymousUser() {
+  return {
+    id: "",
+    login: "anonymous",
+  };
 }
 
 const UserSchema = z.object({
@@ -21,14 +28,16 @@ const LoginResponse = z.object({
 });
 
 export const useUserStore = defineStore("userStore", () => {
-  const user: Ref<User | null> = ref(null);
-  async function login(login: string, password: string) {
-    console.log("login...", user.value, login, password);
-    // if (user.value !== null) {
-    //   console.log("exit");
+  const user: User = reactive(anonymousUser());
 
-    //   return;
-    // }
+  const inProgress = ref(true);
+
+  resolveUser();
+
+  async function login(login: string, password: string) {
+    if (user.id !== "") {
+      return true;
+    }
 
     const { data, error } = await useAxios("http://localhost:8081/login", {
       method: "POST",
@@ -44,27 +53,30 @@ export const useUserStore = defineStore("userStore", () => {
 
     if (error.value) {
       console.log(error);
-      user.value = null;
-      return;
+      return false;
     }
 
     const loginResponse = LoginResponse.parse(data.value);
-    user.value = loginResponse.user;
+    user.id = loginResponse.user.id;
+    user.login = loginResponse.user.login;
     cookie.set("access_token", loginResponse.access_token);
+  }
+
+  function logout() {
+    cookie.remove("access_token");
+    const anon = anonymousUser();
+    user.id = anon.id;
+    user.login = anon.login;
   }
 
   async function resolveUser() {
     const access_token = cookie.get("access_token");
 
     if (typeof access_token !== "string" || access_token === "") {
+      inProgress.value = false;
       return null;
     }
 
-    await tryResolveUser(access_token);
-  }
-
-  async function tryResolveUser(access_token: string) {
-    console.log("resolving...");
     const { data, error } = await useAxios("http://localhost:8081/user/get", {
       method: "POST",
       timeout: 1000,
@@ -76,12 +88,15 @@ export const useUserStore = defineStore("userStore", () => {
     });
 
     if (error.value) {
-      cookie.set("access_token", null);
-      user.value = null;
+      cookie.remove("access_token");
     } else {
-      user.value = UserSchema.parse(data.value);
+      const resolvedUser = UserSchema.parse(data.value);
+      user.id = resolvedUser.id;
+      user.login = resolvedUser.login;
     }
+
+    inProgress.value = false;
   }
 
-  return { user, login, resolveUser };
+  return { user, login, inProgress, logout };
 });

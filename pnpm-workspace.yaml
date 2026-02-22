@@ -20,3 +20,4 @@ peerDependencyRules:
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
+  - vue-demi

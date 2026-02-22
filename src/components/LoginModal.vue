@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useUserStore } from "@/stores/user";
 
-const { login } = useUserStore();
+const { user, login } = useUserStore();
 </script>
 
 <script lang="ts">
@@ -11,6 +11,25 @@ function getLoginAndPassword(): [string, string] {
 
   return [loginInput.value, passwordInput.value];
 }
+
+export default {
+  methods: {
+    sayLogged(login: string) {
+      this.$toast.success(`Success login: ${login}`);
+    },
+    sayNotLogged(err: string) {
+      this.$toast.error("Failed to login: " + err);
+    },
+    closeModal() {
+      const value = document.getElementById("loginModalCloseButton");
+      if (value === null) {
+        this.$toast.error("Failed to close modal");
+        return;
+      }
+      value.click();
+    },
+  },
+};
 </script>
 
 <template>
@@ -24,8 +43,9 @@ function getLoginAndPassword(): [string, string] {
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Авторизация</h1>
+          <h1 class="modal-title fs-5">Авторизация</h1>
           <button
+            id="loginModalCloseButton"
             type="button"
             class="btn-close"
             data-bs-dismiss="modal"
@@ -48,7 +68,14 @@ function getLoginAndPassword(): [string, string] {
                 class="btn btn-primary"
                 @click="
                   () => {
-                    login(...getLoginAndPassword());
+                    login(...getLoginAndPassword())
+                      .then(() => {
+                        closeModal();
+                        sayLogged(user.login);
+                      })
+                      .catch((err) => {
+                        sayNotLogged(err);
+                      });
                   }
                 "
               >

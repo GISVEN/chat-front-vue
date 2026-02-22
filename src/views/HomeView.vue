@@ -2,35 +2,49 @@
 import ChatsList from "@/components/ChatsList.vue";
 import LoginModal from "@/components/LoginModal.vue";
 import { useUserStore } from "@/stores/user";
+import { storeToRefs } from "pinia";
 
-const { user, resolveUser } = useUserStore();
-resolveUser();
+const userStore = useUserStore();
+const { logout } = userStore;
+const { user, inProgress } = storeToRefs(userStore);
 </script>
 
-<script lang="ts">
-export default {
-  watch: {
-    user() {},
-  },
-};
-</script>
+<script lang="ts"></script>
 
 <template>
   <LoginModal />
 
-  <div v-if="user === null">
-    <button
-      type="button"
-      class="btn btn-primary"
-      data-bs-toggle="modal"
-      data-bs-target="#loginModal"
-    >
-      Login
-    </button>
-  </div>
-  <div v-else>User: {{ user?.login }}</div>
-
   <div class="container">
+    <div class="row header">
+      <div class="m-2">
+        <div class="btn-toolbar mb-3 w-min" role="toolbar">
+          <div class="input-group w-100">
+            <div class="input-group-text flex" id="btnGroupAddon">@</div>
+
+            <div class="form-control w-80" placeholder="Input group example">
+              <div v-if="inProgress">
+                <span class="spinner-border spinner-border-sm"></span>
+              </div>
+              <div v-else>{{ user.login }}</div>
+            </div>
+
+            <button
+              v-if="user.id === ''"
+              type="button"
+              class="btn btn-outline-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#loginModal"
+            >
+              Login
+            </button>
+            <button v-else type="button" class="btn btn-outline-danger" @click="logout()">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col-4">
         <h2>Чатов</h2>
@@ -40,3 +54,9 @@ export default {
     </div>
   </div>
 </template>
+
+<style>
+.header {
+  height: 50px;
+}
+</style>
