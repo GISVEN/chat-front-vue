@@ -5,7 +5,7 @@ import { reactive, ref } from "vue";
 
 const cookie = useCookies(["access_token"]);
 
-interface User {
+export interface User {
   id: string;
   login: string;
 }

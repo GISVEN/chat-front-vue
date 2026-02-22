@@ -13,7 +13,7 @@ defineProps<{
     class="no-pounter-link list-group-item list-group-item-action btn btn-light"
     href="#"
     role="button"
-    >{{ chat }}</a
+    >{{ chat?.title }}</a
   >
 </template>
 

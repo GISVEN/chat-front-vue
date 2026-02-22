@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ChatsList from "@/components/ChatsList.vue";
+import ChatsList from "@/components/Chat/ChatsList.vue";
 import LoginModal from "@/components/LoginModal.vue";
 import { useUserStore } from "@/stores/user";
 import { storeToRefs } from "pinia";
