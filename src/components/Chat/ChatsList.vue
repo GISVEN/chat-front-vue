@@ -3,14 +3,15 @@ import { useUserStore } from "@/stores/user";
 import ChatButton from "./ChatButton.vue";
 
 import { useChatsStore } from "@/stores/chats";
-const { user } = useUserStore();
+import { storeToRefs } from "pinia";
+const { user } = storeToRefs(useUserStore());
 
-const { chats } = useChatsStore();
+const { chats } = storeToRefs(useChatsStore());
 </script>
 
 <template>
   <div v-if="user.id !== ''" class="list-group">
-    <div v-for="chat in chats.data" :key="chat.id">
+    <div v-for="chat in chats" :key="chat.id">
       <ChatButton :chat></ChatButton>
     </div>
   </div>

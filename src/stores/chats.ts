@@ -1,30 +1,26 @@
-import { reactive, watch } from "vue";
-import { defineStore } from "pinia";
+import { ref, watch, type Ref } from "vue";
+import { defineStore, storeToRefs } from "pinia";
 import { ChatResponse, type Chat } from "@/DTO/chat";
 import { useAxios, useCookies } from "@vueuse/integrations";
 import { useUserStore, type User } from "./user";
 
-interface Chats {
-  data: Chat[];
-}
+type Chats = Chat[];
 
 const cookie = useCookies(["access_token"]);
 
 export const useChatsStore = defineStore("chatsList", () => {
-  const { user } = useUserStore();
+  const { user } = storeToRefs(useUserStore());
 
-  const chats: Chats = reactive({
-    data: [],
-  });
+  const chats: Ref<Chats> = ref([]);
+
+  const selected: Ref<Chat | null> = ref(null);
 
   async function fetchChats(user: User) {
     if (user.id === "") {
-      console.log("[chats] no user");
       return;
     }
     const access_token = cookie.get("access_token");
 
-    console.log("[chats] req chats");
     const { data, error } = await useAxios("http://localhost:8081/chats", {
       method: "GET",
       timeout: 1000,
@@ -39,19 +35,21 @@ export const useChatsStore = defineStore("chatsList", () => {
     }
 
     const resolvedChats = ChatResponse.parse(data.value);
-    console.log("[chats] resolved", resolvedChats);
 
-    chats.data = resolvedChats;
+    chats.value = resolvedChats;
+  }
+
+  function selectChat(chat: Chat | null) {
+    selected.value = chat;
   }
 
   watch(
     user,
     async (newUser) => {
-      console.log("[chats] new user", newUser);
       await fetchChats(newUser);
     },
     { immediate: true },
   );
 
-  return { chats, fetchChats };
+  return { chats, selected, selectChat, fetchChats };
 });

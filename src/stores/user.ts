@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { useAxios, useCookies } from "@vueuse/integrations";
 import z from "zod/v3";
-import { reactive, ref } from "vue";
+import { ref, type Ref } from "vue";
 
 const cookie = useCookies(["access_token"]);
 
@@ -17,7 +17,7 @@ function anonymousUser() {
   };
 }
 
-const UserSchema = z.object({
+export const UserSchema = z.object({
   id: z.string(),
   login: z.string(),
 });
@@ -28,14 +28,14 @@ const LoginResponse = z.object({
 });
 
 export const useUserStore = defineStore("userStore", () => {
-  const user: User = reactive(anonymousUser());
+  const user: Ref<User> = ref(anonymousUser());
 
   const inProgress = ref(true);
 
   resolveUser();
 
   async function login(login: string, password: string) {
-    if (user.id !== "") {
+    if (user.value.id !== "") {
       return true;
     }
 
@@ -57,16 +57,13 @@ export const useUserStore = defineStore("userStore", () => {
     }
 
     const loginResponse = LoginResponse.parse(data.value);
-    user.id = loginResponse.user.id;
-    user.login = loginResponse.user.login;
+    user.value = loginResponse.user;
     cookie.set("access_token", loginResponse.access_token);
   }
 
   function logout() {
     cookie.remove("access_token");
-    const anon = anonymousUser();
-    user.id = anon.id;
-    user.login = anon.login;
+    user.value = anonymousUser();
   }
 
   async function resolveUser() {
@@ -90,9 +87,7 @@ export const useUserStore = defineStore("userStore", () => {
     if (error.value) {
       cookie.remove("access_token");
     } else {
-      const resolvedUser = UserSchema.parse(data.value);
-      user.id = resolvedUser.id;
-      user.login = resolvedUser.login;
+      user.value = UserSchema.parse(data.value);
     }
 
     inProgress.value = false;
