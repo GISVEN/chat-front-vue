@@ -21,7 +21,7 @@ export const useChatsStore = defineStore("chatsList", () => {
     }
     const access_token = cookie.get("access_token");
 
-    const { data, error } = await useAxios("http://localhost:8081/chats", {
+     const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/chats", {
       method: "GET",
       timeout: 1000,
       headers: {

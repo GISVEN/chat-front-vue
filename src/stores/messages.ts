@@ -53,7 +53,7 @@ const useMessagesStore = defineStore("messagesStore", () => {
       return;
     }
 
-    const { data, error } = await useAxios("http://localhost:8081/chat/messages", {
+     const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/chat/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
