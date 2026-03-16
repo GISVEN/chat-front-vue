@@ -30,6 +30,12 @@ export const useChatsStore = defineStore("chatsList", () => {
     });
 
     if (error.value) {
+      const status = (error.value as any).response?.status;
+      if (status === 404) {
+        console.log("[chats] chats not found, clearing list");
+        chats.value = [];
+        return;
+      }
       console.error("[chats] chats error", error.value);
       return;
     }

@@ -40,7 +40,7 @@ export const useUserStore = defineStore("userStore", () => {
     }
 
     try {
-       const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/login", {
+      const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/login", {
         method: "POST",
         timeout: 1000,
         data: {
@@ -81,10 +81,10 @@ export const useUserStore = defineStore("userStore", () => {
     }
 
     try {
-       const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/user/get", {
+      const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/user/get", {
         method: "POST",
         timeout: 1000,
-        data: { test: "test" },
+        data: {},
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
