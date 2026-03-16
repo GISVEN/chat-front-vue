@@ -54,7 +54,7 @@ export const useUserStore = defineStore("userStore", () => {
 
       if (error.value) {
         console.log(error.value);
-        return false;
+        throw new Error("Login failed: " + error.value);
       }
 
       const loginResponse = LoginResponse.parse(data.value);
@@ -63,7 +63,7 @@ export const useUserStore = defineStore("userStore", () => {
       return true;
     } catch (e) {
       console.log(e);
-      return false;
+      throw e;
     }
   }
 
