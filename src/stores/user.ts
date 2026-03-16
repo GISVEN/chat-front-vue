@@ -39,26 +39,32 @@ export const useUserStore = defineStore("userStore", () => {
       return true;
     }
 
-    const { data, error } = await useAxios("http://localhost:8081/login", {
-      method: "POST",
-      timeout: 1000,
-      data: {
-        login: login,
-        password: password,
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const { data, error } = await useAxios("http://localhost:8081/login", {
+        method: "POST",
+        timeout: 1000,
+        data: {
+          login: login,
+          password: password,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (error.value) {
-      console.log(error);
+      if (error.value) {
+        console.log(error.value);
+        return false;
+      }
+
+      const loginResponse = LoginResponse.parse(data.value);
+      user.value = loginResponse.user;
+      cookie.set("access_token", loginResponse.access_token);
+      return true;
+    } catch (e) {
+      console.log(e);
       return false;
     }
-
-    const loginResponse = LoginResponse.parse(data.value);
-    user.value = loginResponse.user;
-    cookie.set("access_token", loginResponse.access_token);
   }
 
   function logout() {
@@ -74,20 +80,24 @@ export const useUserStore = defineStore("userStore", () => {
       return null;
     }
 
-    const { data, error } = await useAxios("http://localhost:8081/user/get", {
-      method: "POST",
-      timeout: 1000,
-      data: { test: "test" },
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    try {
+      const { data, error } = await useAxios("http://localhost:8081/user/get", {
+        method: "POST",
+        timeout: 1000,
+        data: { test: "test" },
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-    if (error.value) {
+      if (error.value) {
+        cookie.remove("access_token");
+      } else {
+        user.value = UserSchema.parse(data.value);
+      }
+    } catch (e) {
       cookie.remove("access_token");
-    } else {
-      user.value = UserSchema.parse(data.value);
     }
 
     inProgress.value = false;
