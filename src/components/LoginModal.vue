@@ -74,7 +74,7 @@ export default {
                     login(...getLoginAndPassword())
                       .then(() => {
                         closeModal();
-                        sayLogged(user.login);
+                        sayLogged(user.email);
                       })
                       .catch((err) => {
                         sayNotLogged(err);

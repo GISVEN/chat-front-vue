@@ -20,11 +20,11 @@ function formatDate(date: Date) {
 
 <template>
   <div class="border border-secondery message-item" v-if="!message.isError">
-    {{ formatDate(message.createdAt) }} <strong>{{ message.user.login }}:</strong>
+    {{ formatDate(message.createdAt) }} <strong>{{ message.user.email }}:</strong>
     {{ message.text }}
   </div>
   <div v-else class="message-item border-secondery bg-red-500">
-    {{ formatDate(message.createdAt) }} <strong>{{ message.user.login }}:</strong>
+    {{ formatDate(message.createdAt) }} <strong>{{ message.user.email }}:</strong>
     {{ message.text }}
   </div>
 </template>

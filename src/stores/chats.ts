@@ -16,12 +16,12 @@ export const useChatsStore = defineStore("chatsList", () => {
   const selected: Ref<Chat | null> = ref(null);
 
   async function fetchChats(user: User) {
-    if (user.id === "") {
+    if (user.id === -1) {
       return;
     }
     const access_token = cookie.get("access_token");
 
-     const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/chats", {
+    const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/chats", {
       method: "GET",
       timeout: 1000,
       headers: {

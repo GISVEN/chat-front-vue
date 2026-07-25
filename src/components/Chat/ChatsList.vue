@@ -10,7 +10,7 @@ const { chats } = storeToRefs(useChatsStore());
 </script>
 
 <template>
-  <div v-if="user.id !== ''" class="list-group">
+  <div v-if="user.id !== -1" class="list-group">
     <div v-for="chat in chats" :key="chat.id">
       <ChatButton :chat></ChatButton>
     </div>

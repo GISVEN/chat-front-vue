@@ -25,11 +25,11 @@ const { user, inProgress } = storeToRefs(userStore);
             <div v-if="inProgress">
               <span class="spinner-border spinner-border-sm"></span>
             </div>
-            <div v-else>{{ user.login }}</div>
+            <div v-else>{{ user.email }}</div>
           </div>
 
           <button
-            v-if="user.id === ''"
+            v-if="user.id === -1"
             type="button"
             class="btn btn-outline-primary"
             data-bs-toggle="modal"

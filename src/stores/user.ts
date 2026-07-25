@@ -6,20 +6,20 @@ import { ref, type Ref } from "vue";
 const cookie = useCookies(["access_token"]);
 
 export interface User {
-  id: string;
-  login: string;
+  id: number;
+  email: string;
 }
 
 function anonymousUser() {
   return {
-    id: "",
-    login: "anonymous",
+    id: -1,
+    email: "anonymous",
   };
 }
 
 export const UserSchema = z.object({
-  id: z.string(),
-  login: z.string(),
+  id: z.number(),
+  email: z.string(),
 });
 
 const LoginResponse = z.object({
@@ -34,8 +34,8 @@ export const useUserStore = defineStore("userStore", () => {
 
   resolveUser();
 
-  async function login(login: string, password: string) {
-    if (user.value.id !== "") {
+  async function login(email: string, password: string) {
+    if (user.value.id !== -1) {
       return true;
     }
 
@@ -44,7 +44,7 @@ export const useUserStore = defineStore("userStore", () => {
         method: "POST",
         timeout: 1000,
         data: {
-          login: login,
+          email: email,
           password: password,
         },
         headers: {
@@ -81,7 +81,7 @@ export const useUserStore = defineStore("userStore", () => {
     }
 
     try {
-      const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/user/get", {
+      const { data, error } = await useAxios(import.meta.env.VITE_BACKEND_URL + "/me", {
         method: "POST",
         timeout: 1000,
         data: {},
@@ -97,6 +97,7 @@ export const useUserStore = defineStore("userStore", () => {
         user.value = UserSchema.parse(data.value);
       }
     } catch (e) {
+      console.log(e);
       cookie.remove("access_token");
     }
 
